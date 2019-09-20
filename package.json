@@ -1,0 +1,31 @@
+{
+  "name": "@linuxdropout/server",
+  "version": "0.1.0",
+  "description": "A simple express-like http Server designed to be ridiculously fast",
+  "author": "https://www.npmjs.com/~linuxdropout",
+  "homepage": "https://github.com/linuxdropout/server",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/linuxdropout/server.git"
+  },
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "npx tsc -w",
+    "test": "echo 'I should probably write some unit tests for this, bite me 🙃' && exit 1",
+    "build": "npx tsc",
+    "prepublish": "npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/linuxdropout/server/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.1",
+    "nodemon": "^1.19.1",
+    "typescript": "^3.5.3"
+  }
+}
