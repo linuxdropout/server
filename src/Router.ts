@@ -72,7 +72,7 @@ export function getRouteHandlers(
     return handlers
 }
 
-export function handleRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
+export function handleRequest(this: Router, req: Request | http.IncomingMessage, res: Response, done: (error?: Error) => void) {
     if (!req.url || !req.method) {
         res.status(400).end()
         return

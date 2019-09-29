@@ -93,9 +93,4 @@ class Server extends http.Server implements Router {
 Server.prototype.use = Router.prototype.use.bind(Server)
 Server.prototype.route = Router.prototype.route.bind(Server)
 
-const server = new Server()
-server.use(
-    router()
-)
-
 export default Server
