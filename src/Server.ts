@@ -1,73 +1,16 @@
 import http from 'http'
 import Response from './Response'
-import Request, { requestParams } from './Request'
+import Request from './Request'
+import router, {
+    parsePath,
+    getRouteHandlers,
+    routing,
+    reqHandler,
+    errHandler,
+    Router
+} from './Router'
 
-export declare type reqHandler = (
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    next: (error?: Error) => void
-) => void
-
-export declare type errHandler = (
-    error: Error,
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    next: (error?: Error) => void
-) => void
-
-export declare interface routing {
-    routes: Map<string, routing>
-    handlers: Array<[string, reqHandler | errHandler]>
-}
-
-function setRouteHandler(routing: routing, urlParts: Array<string>, method: string, handler: reqHandler | errHandler) {
-    const part = urlParts.shift()
-
-    if (!part) {
-        return routing.handlers.push([method, handler])
-    }
-
-    const nextRouting = routing.routes.get(part) || {
-        routes: new Map(),
-        handlers: []
-    }
-
-    setRouteHandler(nextRouting, urlParts, method, handler)
-    routing.routes.set(part, nextRouting)
-}
-
-function getRouteHandlers(
-    routing: routing,
-    urlParts: Array<string>,
-    methods: Array<string> = ['all'],
-    handlers: Array<[reqHandler | errHandler, requestParams]> = [],
-    params: requestParams = {}
-): Array<[reqHandler | errHandler, requestParams]> {
-    for (const [method, handler] of routing.handlers) {
-        if (methods.includes(method)) {
-            handlers.push([handler, params])
-        }
-    }
-
-    const part = urlParts[0]
-    if (part === void 0) return handlers
-
-    for (const [key, value] of routing.routes) {
-        if (key === part) {
-            getRouteHandlers(value, urlParts.slice(1), methods, handlers, params)
-            continue
-        }
-        if (key.charAt(0) === ':') {
-            const paramKey = key.slice(1)
-            getRouteHandlers(value, urlParts.slice(1), methods, handlers, { ...params, [paramKey]: part })
-            continue
-        }
-    }
-
-    return handlers
-}
-
-export default class Server extends http.Server {
+class Server extends http.Server implements Router {
     routing: routing = { handlers: [], routes: new Map() }
     logger: typeof console
 
@@ -80,17 +23,11 @@ export default class Server extends http.Server {
 
     use(handler: reqHandler | errHandler): void
     use(path: string, handler: reqHandler | errHandler): void
-    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler) {
-        const [path, handler] = typeof arg0 === 'string'
-            ? [arg0, arg1]
-            : ['', arg0]
+    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler) { }
+    // Replace with Router.use
 
-        setRouteHandler(this.routing, path.split('/'), 'all', handler as reqHandler | errHandler)
-    }
-
-    route(path: string, method: string, handler: reqHandler | errHandler) {
-        setRouteHandler(this.routing, path.split('/'), method, handler as reqHandler | errHandler)
-    }
+    route(path: string, method: string, handler: reqHandler | errHandler) { }
+    // Replace with Router.route
 
     handleRequest(request: Request, response: Response) {
         const res: Response = Object.assign(
@@ -110,7 +47,7 @@ export default class Server extends http.Server {
         }
 
         const { url, method } = request
-        const handlers = getRouteHandlers(this.routing, url.split('/').slice(1), ['all', method])
+        const handlers = getRouteHandlers(this.routing, parsePath(url), ['all', method])
 
         const done = (error?: Error) => {
             if (!res.finished) {
@@ -140,11 +77,11 @@ export default class Server extends http.Server {
             if (handler.length === 3) {
                 if (error) return next(error)
 
-                return (handler as reqHandler).bind(this)(req, res, next)
+                return (handler as reqHandler)(req, res, next)
             }
 
             if (error) {
-                return (handler as errHandler).bind(this)(error, req, res, next)
+                return (handler as errHandler)(error, req, res, next)
             }
 
             return next()
@@ -153,3 +90,12 @@ export default class Server extends http.Server {
         next()
     }
 }
+Server.prototype.use = Router.prototype.use.bind(Server)
+Server.prototype.route = Router.prototype.route.bind(Server)
+
+const server = new Server()
+server.use(
+    router()
+)
+
+export default Server

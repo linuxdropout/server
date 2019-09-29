@@ -8,8 +8,16 @@ export {
 } from './Response'
 
 export {
-    default as Server,
+    default as Server
+} from './Server'
+
+export {
+    default as configureRouter,
+    Router,
     reqHandler,
     errHandler,
+    getRouteHandlers,
+    parsePath,
+    setRouteHandler,
     routing
-} from './Server'
+} from './Router'
