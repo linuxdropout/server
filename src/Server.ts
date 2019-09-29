@@ -1,6 +1,6 @@
 import http from 'http'
-import Response from './Response'
-import Request from './Request'
+import createResponse, { Response } from './Response'
+import createRequest, { Request } from './Request'
 import router, {
     parsePath,
     getRouteHandlers,
@@ -10,7 +10,7 @@ import router, {
     Router
 } from './Router'
 
-class Server extends http.Server implements Router {
+export class Server extends http.Server implements Router {
     routing: routing = { handlers: [], routes: new Map() }
     logger: typeof console
 
@@ -21,26 +21,11 @@ class Server extends http.Server implements Router {
         this.on('request', this.handleRequest)
     }
 
-    use(handler: reqHandler | errHandler): void
-    use(path: string, handler: reqHandler | errHandler): void
-    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler) { }
-    // Replace with Router.use
-
-    route(path: string, method: string, handler: reqHandler | errHandler) { }
-    // Replace with Router.route
+    use = Router.prototype.use
+    route = Router.prototype.route
 
     handleRequest(request: Request, response: Response) {
-        const res: Response = Object.assign(
-            response,
-            {
-                append: Response.prototype.append.bind(response),
-                status: Response.prototype.status.bind(response),
-                send: Response.prototype.send.bind(response),
-                json: Response.prototype.json.bind(response),
-                setHeader: Response.prototype.setHeader.bind(response),
-                end: Response.prototype.end.bind(response)
-            }
-        )
+        const res = createResponse(response)
 
         if (!request.url || !request.method) {
             return res.status(400).end()
@@ -66,13 +51,7 @@ class Server extends http.Server implements Router {
             const nextHandler = handlers.shift()
             if (!nextHandler) return done(error)
             const [handler, params] = nextHandler
-
-            const req: Request = Object.assign(
-                request,
-                {
-                    params
-                }
-            )
+            const req = createRequest(request, { params })
 
             if (handler.length === 3) {
                 if (error) return next(error)
@@ -90,7 +69,7 @@ class Server extends http.Server implements Router {
         next()
     }
 }
-Server.prototype.use = Router.prototype.use.bind(Server)
-Server.prototype.route = Router.prototype.route.bind(Server)
 
-export default Server
+export default function createServer({ logger = console } = {}) {
+    return new Server({ logger })
+}

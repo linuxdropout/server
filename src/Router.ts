@@ -1,6 +1,6 @@
 import http from 'http'
-import Request, { requestParams } from './Request'
-import Response from './Response'
+import { Request, requestParams } from './Request'
+import { Response } from './Response'
 
 export declare type reqHandler = (
     req: Request,
@@ -129,7 +129,7 @@ export abstract class Router {
     }
 }
 
-export default function router({ logger = console } = {}): Router & reqHandler {
+export default function ({ logger = console } = {}): Router & reqHandler {
     const routingContext = {
         logger,
         routing: { routes: new Map(), handlers: [] },

@@ -1,18 +1,22 @@
 export {
-    default as Request,
+    default as createRequest,
+    Request,
     requestParams
 } from './Request'
 
 export {
-    default as Response
+    default as createResponse,
+    Response
 } from './Response'
 
 export {
-    default as Server
+    default as createServer,
+    Server
 } from './Server'
 
 export {
-    default as configureRouter,
+    default as createRouter,
+    handleRequest,
     Router,
     reqHandler,
     errHandler,

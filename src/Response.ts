@@ -1,8 +1,8 @@
 import { ServerResponse } from 'http'
 import defaults from './defaults'
 
-export default abstract class Response extends ServerResponse {
-    append (headerKey: string, value: Array<string> | string) {
+export abstract class Response extends ServerResponse {
+    append(headerKey: string, value: Array<string> | string) {
         const header = this.getHeader(headerKey)
 
         if (header === void 0) {
@@ -19,14 +19,14 @@ export default abstract class Response extends ServerResponse {
         return this.setHeader(headerKey, [header, ...value].join(', '))
     }
 
-    status (statusCode: number, statusMessage: string = defaults.statusMessage[statusCode]) {
+    status(statusCode: number, statusMessage: string = defaults.statusMessage[statusCode]) {
         this.statusCode = statusCode
         this.statusMessage = statusMessage
 
         return this
     }
 
-    send (body: string | Buffer | Array<any> | object) {
+    send(body: string | Buffer | Array<any> | object) {
         if (typeof body === 'string' || body instanceof Buffer) {
             this.write(body)
             return this
@@ -47,19 +47,33 @@ export default abstract class Response extends ServerResponse {
         return this
     }
 
-    json (body: object) {
+    json(body: object) {
         this.setHeader('Content-Type', 'application/json')
         this.write(JSON.stringify(body))
 
         return this
     }
 
-    setHeader (key: string, value: string) {
+    setHeader(key: string, value: string) {
         super.setHeader(key, value)
         return this
     }
-    end () {
+    end() {
         super.end()
         return this
     }
+}
+
+export default function (response: ServerResponse): Response {
+    return Object.assign(
+        response,
+        {
+            append: Response.prototype.append.bind(response),
+            status: Response.prototype.status.bind(response),
+            send: Response.prototype.send.bind(response),
+            json: Response.prototype.json.bind(response),
+            setHeader: Response.prototype.setHeader.bind(response),
+            end: Response.prototype.end.bind(response)
+        }
+    )
 }

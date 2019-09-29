@@ -4,6 +4,13 @@ export declare type requestParams = {
     [index: string]: any
 }
 
-export default abstract class Request extends IncomingMessage {
+export abstract class Request extends IncomingMessage {
     params: requestParams = {}
+}
+
+export default function (request: IncomingMessage, props: { params: requestParams } = { params: {} }): Request {
+    return Object.assign(
+        request,
+        props
+    )
 }
