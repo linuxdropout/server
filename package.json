@@ -1,6 +1,6 @@
 {
   "name": "@linuxdropout/server",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A simple express-like http Server designed to be ridiculously fast",
   "author": "https://www.npmjs.com/~linuxdropout",
   "homepage": "https://github.com/linuxdropout/server",
