@@ -1,5 +1,4 @@
-import http from 'http'
-import { Request, requestParams } from './Request'
+import request, { Request, requestParams } from './Request'
 import { Response } from './Response'
 
 export declare type reqHandler = (
@@ -15,92 +14,153 @@ export declare type errHandler = (
     next: (error?: Error) => void
 ) => void
 
+export declare type routingHandler = {
+    method: string,
+    handler: reqHandler | errHandler,
+    order: number
+}
+export declare type handler = {
+    method: string,
+    handler: reqHandler | errHandler,
+    order: number,
+    path: string,
+    params: requestParams
+}
+
 export declare interface routing {
     routes: Map<string, routing>
-    handlers: Array<[string, reqHandler | errHandler]>
+    handlers: Array<routingHandler>
 }
 
 export function parsePath(path: string) {
     return path
         .split('/')
-        .filter(route => route !== '')
+        .filter(part => part)
 }
 
-export function setRouteHandler(routing: routing, urlParts: Array<string>, method: string, handler: reqHandler | errHandler) {
-    const part = urlParts.shift()
-
-    if (!part) return routing.handlers.push([method, handler])
-
-    const nextRouting = routing.routes.get(part) || {
-        routes: new Map(),
-        handlers: []
+export function setRouteHandler(
+    routing: routing,
+    method: string,
+    pathParts: Array<string>,
+    handler: reqHandler | errHandler,
+    order: number = 0,
+    pathIndex: number = 0,
+) {
+    if (pathIndex === pathParts.length) {
+        return routing.handlers.push({
+            method,
+            handler,
+            order
+        })
     }
 
-    setRouteHandler(nextRouting, urlParts, method, handler)
-    routing.routes.set(part, nextRouting)
+    const nextPath = pathParts[pathIndex]
+    const nextRouting = routing.routes.get(nextPath) || {
+        handlers: [],
+        routes: new Map()
+    }
+
+    setRouteHandler(nextRouting, method, pathParts, handler, order, pathIndex + 1)
+    routing.routes.set(nextPath, nextRouting)
 }
 
 export function getRouteHandlers(
     routing: routing,
-    urlParts: Array<string>,
+    pathParts: Array<string>,
     methods: Array<string> = ['all'],
-    handlers: Array<[reqHandler | errHandler, requestParams]> = [],
+    pathIndex: number = 0,
+    handlers: Array<handler> = [],
     params: requestParams = {}
-): Array<[reqHandler | errHandler, requestParams]> {
-    const part = urlParts[0]
-
-    for (const [method, handler] of routing.handlers) {
-        if (methods.includes(method)) {
-            handlers.push([handler, params])
+) {
+    for (const handler of routing.handlers) {
+        if (methods.includes(handler.method)) {
+            handlers.push({
+                ...handler,
+                path: pathParts.slice(0, pathIndex).join('/'),
+                params
+            })
         }
     }
 
-    if (part !== void 0) {
-        for (const [key, value] of routing.routes) {
-            if (key.charAt(0) === ':') {
-                const paramKey = key.slice(1)
-                getRouteHandlers(value, urlParts.slice(1), methods, handlers, { ...params, [paramKey]: part })
-                continue
-            }
-            if (key === part) {
-                getRouteHandlers(value, urlParts.slice(1), methods, handlers, params)
-                continue
-            }
+    for (const [routePath, route] of routing.routes) {
+        const path = pathParts[pathIndex]
+
+        if (routePath.charAt(0) === ':') {
+            getRouteHandlers(
+                route,
+                pathParts,
+                methods,
+                pathIndex + 1,
+                handlers,
+                {
+                    ...params,
+                    [routePath.slice(1)]: path
+                }
+            )
+            continue
+        }
+
+        if (routePath === path) {
+            getRouteHandlers(
+                route,
+                pathParts,
+                methods,
+                pathIndex + 1,
+                handlers,
+                params
+            )
+            continue
         }
     }
 
-    return handlers
+
+    return pathIndex === 0
+        ? handlers.sort(
+            (handlerA, handlerB) => handlerA.order - handlerB.order
+        )
+        : handlers
 }
 
-export function handleRequest(this: Router, req: Request | http.IncomingMessage, res: Response, done: (error?: Error) => void) {
-    if (!req.url || !req.method) {
-        res.status(400).end()
-        return
-    }
+export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
+    const { method, path, params: requestParams, path: baseUrl } = req
 
-    const { url, method } = req
-    const handlers = getRouteHandlers(this.routing, parsePath(url), ['all', method])
+    const handlers = getRouteHandlers(
+        this.routing,
+        parsePath(path),
+        ['all', method]
+    )
 
+    let handlerIndex = 0
     const next = (error?: Error): void => {
-        const nextHandler = handlers.shift()
-        if (!nextHandler) return done(error)
-        const [handler, params] = nextHandler
+        if (!handlers[handlerIndex]) return done(error)
 
-        const reqWithParams: Request = Object.assign(
+        const {
+            handler,
+            params,
+            path,
+        } = handlers[handlerIndex++]
+
+        const reqWithParams: Request = request(
             req,
             {
-                params
+                params: {
+                    ...requestParams,
+                    ...params
+                },
+                baseUrl,
+                path,
+                method
             }
         )
 
-        if (handler.length === 3) {
-            if (error) return next(error)
-
-            return (handler as reqHandler)(reqWithParams, res, next)
+        if (error) {
+            return handler.length === 4
+                ? (handler as errHandler)(error, reqWithParams, res, next)
+                : next(error)
         }
 
-        if (error) {
-            return (handler as errHandler)(error, reqWithParams, res, next)
+        if (handler.length === 3) {
+            return (handler as reqHandler)(reqWithParams, res, next)
         }
 
         return next()
@@ -111,38 +171,44 @@ export function handleRequest(this: Router, req: Request | http.IncomingMessage,
 
 export abstract class Router {
     routing: routing = { handlers: [], routes: new Map() }
-    logger: typeof console = console
+    routes: number = 0
 
-    use(handler: reqHandler | errHandler): void
-    use(path: string, handler: reqHandler | errHandler): void
-    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler): void {
-        const [path, handler] = typeof arg0 === 'string'
-            ? [arg0, arg1]
-            : ['', arg0]
-
-
-        setRouteHandler(this.routing, parsePath(path), 'all', handler as reqHandler | errHandler)
+    route(path: string, method: string, handler: reqHandler | errHandler): Router {
+        setRouteHandler(
+            this.routing,
+            method,
+            parsePath(path),
+            handler,
+            this.routes++
+        )
+        return this
     }
 
-    route(path: string, method: string, handler: reqHandler | errHandler) {
-        setRouteHandler(this.routing, parsePath(path), method, handler as reqHandler | errHandler)
+    use(handler: reqHandler | errHandler): Router
+    use(path: string, handler: reqHandler | errHandler): Router
+    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler): Router {
+        const [path, handler] = typeof arg0 === 'string'
+            ? [arg0, arg1 as reqHandler | errHandler]
+            : ['', arg0 as reqHandler | errHandler]
+
+        return this.route(
+            path,
+            'all',
+            handler,
+        )
     }
 }
 
-export default function ({ logger = console } = {}): Router & reqHandler {
-    const routingContext = {
-        logger,
+export default function (): reqHandler & Router {
+    const router: Router = {
         routing: { routes: new Map(), handlers: [] },
+        routes: 0,
+        route: Router.prototype.route,
+        use: Router.prototype.use
     }
 
-    const router: Router = Object.assign(
-        routingContext,
-        {
-
-            use: Router.prototype.use.bind(routingContext),
-            route: Router.prototype.route.bind(routingContext)
-        }
+    return Object.assign(
+        routeRequest.bind(router),
+        router
     )
-
-    return Object.assign(handleRequest.bind(router), router)
 }

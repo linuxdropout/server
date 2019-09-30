@@ -16,12 +16,14 @@ export {
 
 export {
     default as createRouter,
-    handleRequest,
-    Router,
     reqHandler,
     errHandler,
-    getRouteHandlers,
-    parsePath,
     setRouteHandler,
-    routing
+    routing,
+    Router,
+    getRouteHandlers,
+    handler,
+    parsePath,
+    routeRequest,
+    routingHandler
 } from './Router'

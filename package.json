@@ -18,7 +18,8 @@
     "dev": "npx tsc -w",
     "test": "npx tsc && npx nyc npx tape 'tests/**/*.test.js'",
     "build": "npx tsc",
-    "prepublish": "npm run build"
+    "preversion": "npm run build && npm run test",
+    "prepublish": "npm run build && npm run test"
   },
   "bugs": {
     "url": "https://github.com/linuxdropout/server/issues"

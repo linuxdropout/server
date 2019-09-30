@@ -1,38 +1,46 @@
 import http from 'http'
+import { statusMessage } from './defaults'
 import createResponse, { Response } from './Response'
 import createRequest, { Request } from './Request'
-import router, {
-    parsePath,
-    getRouteHandlers,
+import {
     routing,
-    reqHandler,
-    errHandler,
+    routeRequest,
     Router
 } from './Router'
 
 export class Server extends http.Server implements Router {
     routing: routing = { handlers: [], routes: new Map() }
-    logger: typeof console
+    routes: number = 0
 
-    constructor({ logger = console } = {}) {
+    constructor() {
         super()
-
-        this.logger = logger
         this.on('request', this.handleRequest)
     }
 
     use = Router.prototype.use
     route = Router.prototype.route
 
-    handleRequest(request: Request, response: Response) {
-        const res = createResponse(response)
+    handleRequest(request: http.IncomingMessage, response: http.ServerResponse): void {
+        const { url, method } = request
 
-        if (!request.url || !request.method) {
-            return res.status(400).end()
+        if (!url || !method) {
+            response.statusCode = 400
+            response.statusMessage = statusMessage[400]
+            return response.end()
         }
 
-        const { url, method } = request
-        const handlers = getRouteHandlers(this.routing, parsePath(url), ['all', method])
+        const res: Response = createResponse(
+            response
+        )
+        const req: Request = createRequest(
+            request,
+            {
+                path: '',
+                baseUrl: '',
+                method,
+                params: {}
+            }
+        )
 
         const done = (error?: Error) => {
             if (!res.finished) {
@@ -40,36 +48,16 @@ export class Server extends http.Server implements Router {
                     res.status(error ? 500 : 404)
                 }
                 if (error) {
-                    this.logger.error(error)
                     res.write(`${error}`)
                 }
                 res.end()
             }
         }
 
-        const next = (error?: Error): void => {
-            const nextHandler = handlers.shift()
-            if (!nextHandler) return done(error)
-            const [handler, params] = nextHandler
-            const req = createRequest(request, { params })
-
-            if (handler.length === 3) {
-                if (error) return next(error)
-
-                return (handler as reqHandler)(req, res, next)
-            }
-
-            if (error) {
-                return (handler as errHandler)(error, req, res, next)
-            }
-
-            return next()
-        }
-
-        next()
+        return routeRequest.bind(this)(req, res, done)
     }
 }
 
-export default function createServer({ logger = console } = {}) {
-    return new Server({ logger })
+export default function createServer() {
+    return new Server()
 }

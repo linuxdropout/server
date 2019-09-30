@@ -1,5 +1,5 @@
 import { ServerResponse } from 'http'
-import defaults from './defaults'
+import { statusMessage } from './defaults'
 
 export abstract class Response extends ServerResponse {
     append(headerKey: string, value: Array<string> | string) {
@@ -19,9 +19,9 @@ export abstract class Response extends ServerResponse {
         return this.setHeader(headerKey, [header, ...value].join(', '))
     }
 
-    status(statusCode: number, statusMessage: string = defaults.statusMessage[statusCode]) {
-        this.statusCode = statusCode
-        this.statusMessage = statusMessage
+    status(code: number, message: string = statusMessage[code]) {
+        this.statusCode = code
+        this.statusMessage = message
 
         return this
     }
