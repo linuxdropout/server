@@ -19,6 +19,7 @@
     "test": "npx tsc && npx nyc npx tape 'tests/**/*.test.js'",
     "build": "npx tsc",
     "preversion": "npm run build && npm run test",
+    "postversion": "git push --tags && npm publish",
     "prepublish": "npm run build && npm run test"
   },
   "bugs": {
