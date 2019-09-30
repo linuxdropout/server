@@ -117,7 +117,7 @@ export function getRouteHandlers(
 }
 
 export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
-    const { method, path: url, params: requestParams } = req
+    const { method, path: url, params: requestParams, baseUrl } = req
 
     const handlers = getRouteHandlers(
         this.routing,
@@ -154,7 +154,7 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
                 : next(error)
         }
 
-        if (handler.length === 3) {
+        if (handler.length < 4) {
             return (handler as reqHandler)(routedRequest, res, next)
         }
 

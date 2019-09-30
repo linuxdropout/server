@@ -21,7 +21,7 @@ export default function (
         method: string
     }
 ): Request {
-    const matchedPathLength = parsePath(baseUrl).length - 1
+    const matchedPathLength = parsePath(baseUrl).length
     const path = parsePath(url)
         .slice(matchedPathLength)
         .join('/')
