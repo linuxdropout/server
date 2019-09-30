@@ -34,9 +34,9 @@ export class Server extends http.Server implements Router {
         )
         const req: Request = createRequest(
             request,
+            '',
+            url,
             {
-                path: url,
-                baseUrl: '',
                 method,
                 params: {}
             }

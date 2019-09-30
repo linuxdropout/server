@@ -122,7 +122,7 @@ export function getRouteHandlers(
 }
 
 export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
-    const { method, path: url, params: requestParams, path: baseUrl } = req
+    const { method, path: url, params: requestParams } = req
 
     const handlers = getRouteHandlers(
         this.routing,
@@ -142,13 +142,13 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
 
         const routedRequest: Request = request(
             req,
+            url,
+            path,
             {
                 params: {
                     ...requestParams,
                     ...params
                 },
-                baseUrl,
-                path,
                 method
             }
         )

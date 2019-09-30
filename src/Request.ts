@@ -13,15 +13,24 @@ export abstract class Request extends IncomingMessage {
 
 export default function (
     request: IncomingMessage,
+    baseUrl: string,
+    url: string,
     props: {
-        path: string,
-        baseUrl: string,
         params: requestParams,
         method: string
     }
 ): Request {
+    const path = baseUrl
+        .split('/')
+        .slice(url.split('/').length - 1)
+        .join('/')
+
     return Object.assign(
         request,
-        props
+        props,
+        {
+            baseUrl,
+            path
+        }
     )
 }
