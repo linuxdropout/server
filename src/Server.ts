@@ -35,7 +35,7 @@ export class Server extends http.Server implements Router {
         const req: Request = createRequest(
             request,
             {
-                path: '',
+                path: url,
                 baseUrl: '',
                 method,
                 params: {}

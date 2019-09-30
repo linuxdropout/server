@@ -122,11 +122,11 @@ export function getRouteHandlers(
 }
 
 export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
-    const { method, path, params: requestParams, path: baseUrl } = req
+    const { method, path: url, params: requestParams, path: baseUrl } = req
 
     const handlers = getRouteHandlers(
         this.routing,
-        parsePath(path),
+        parsePath(url),
         ['all', method]
     )
 
@@ -140,7 +140,7 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
             path,
         } = handlers[handlerIndex++]
 
-        const reqWithParams: Request = request(
+        const routedRequest: Request = request(
             req,
             {
                 params: {
@@ -155,12 +155,12 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
 
         if (error) {
             return handler.length === 4
-                ? (handler as errHandler)(error, reqWithParams, res, next)
+                ? (handler as errHandler)(error, routedRequest, res, next)
                 : next(error)
         }
 
         if (handler.length === 3) {
-            return (handler as reqHandler)(reqWithParams, res, next)
+            return (handler as reqHandler)(routedRequest, res, next)
         }
 
         return next()
