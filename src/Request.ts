@@ -1,4 +1,5 @@
 import { IncomingMessage } from 'http'
+import { parsePath } from './utils'
 
 export declare type requestParams = {
     [index: string]: any
@@ -20,9 +21,9 @@ export default function (
         method: string
     }
 ): Request {
-    const path = baseUrl
-        .split('/')
-        .slice(url.split('/').length - 1)
+    const matchedPathLength = parsePath(baseUrl).length - 1
+    const path = parsePath(url)
+        .slice(matchedPathLength)
         .join('/')
 
     return Object.assign(

@@ -1,5 +1,6 @@
 import request, { Request, requestParams } from './Request'
 import { Response } from './Response'
+import { parsePath } from './utils'
 
 export declare type reqHandler = (
     req: Request,
@@ -30,12 +31,6 @@ export declare type handler = {
 export declare interface routing {
     routes: Map<string, routing>
     handlers: Array<routingHandler>
-}
-
-export function parsePath(path: string) {
-    return path
-        .split('/')
-        .filter(part => part)
 }
 
 export function setRouteHandler(
@@ -142,8 +137,8 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
 
         const routedRequest: Request = request(
             req,
-            url,
             path,
+            url,
             {
                 params: {
                     ...requestParams,
