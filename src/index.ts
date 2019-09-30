@@ -1,18 +1,22 @@
 export {
     default as createRequest,
     Request,
-    requestParams
+    requestParams,
 } from './Request'
 
 export {
     default as createResponse,
-    Response
+    Response,
 } from './Response'
 
 export {
     default as createServer,
-    Server
+    Server,
 } from './Server'
+
+export {
+    parsePath,
+} from './utils'
 
 export {
     default as createRouter,
@@ -23,7 +27,6 @@ export {
     Router,
     getRouteHandlers,
     handler,
-    parsePath,
     routeRequest,
-    routingHandler
+    routingHandler,
 } from './Router'
