@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 
 tape('server :: e2e handlers including router', async t => {
-    t.plan(6)
+    t.plan(7)
 
     const server = createServer()
     server.listen(8080)
@@ -116,6 +116,7 @@ tape('server :: e2e handlers including router', async t => {
         .expect('Content-Type', /json/)
         .end((error, response) => {
             t.error(error, 'no error /router/test3/hello')
+            t.equal(response.res.statusMessage, 'SESSION DATA', 'statusMessage carried and custom')
             t.deepEqual(
                 response.body,
                 [
