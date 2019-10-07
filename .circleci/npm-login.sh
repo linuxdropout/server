@@ -1,0 +1,1 @@
+echo $npmrc > ~/.npmrc

@@ -19,6 +19,8 @@ jobs:
       - run: npm run build
       - run: npm run lint
       - run: npm t
+      - run: sh .circleci/git-login.sh
+      - run: sh .circleci/npm-login.sh
       - run: sh .circleci/release.beta.sh
 
 workflows:
