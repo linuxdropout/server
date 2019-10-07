@@ -5,6 +5,18 @@
     "plugins": [
         "@typescript-eslint"
     ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            }
+        }
+    },
     "rules": {
         "semi": [
             "error",
@@ -39,6 +51,27 @@
         "max-len": [
             "error",
             120
+        ],
+        "prefer-destructuring": [
+            "error",
+            {
+                "array": false,
+                "object": true
+            }
+        ],
+        "no-plusplus": 0,
+        "no-dupe-class-members": 0,
+        "no-continue": 0,
+        "no-restricted-syntax": 0,
+        "lines-between-class-members": 0,
+        "import/prefer-default-export": 0,
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "vars": "all",
+                "args": "after-used",
+                "ignoreRestSiblings": false
+            }
         ]
     },
     "parser": "@typescript-eslint/parser"

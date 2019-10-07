@@ -49,5 +49,5 @@ export const statusMessage: {
     503: 'Service Unavailable',
     504: 'Gateway Timeout',
     505: 'HTTP Version Not Supported',
-    511: 'Network Authentication Requred'
+    511: 'Network Authentication Requred',
 }

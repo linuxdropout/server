@@ -15,7 +15,7 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "npx eslint .",
+    "lint": "npx eslint src/* tests/*",
     "build": "npx tsc",
     "test": "npx nyc npx tape 'tests/**/*.test.js'"
   },
