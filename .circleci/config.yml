@@ -5,4 +5,7 @@ jobs:
       - image: circleci/node:12.11.0
     steps:
       - checkout
-      - run: npm install
+      - run: npm i
+      - run: npm run lint
+      - run: npm run build
+      - run: npm t
