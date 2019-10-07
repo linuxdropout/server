@@ -5,7 +5,7 @@ export abstract class Response extends ServerResponse {
     append(headerKey: string, value: Array<string> | string) {
         const header = this.getHeader(headerKey)
 
-        if (header === void 0) {
+        if (header === undefined) {
             if (typeof value === 'string') {
                 return this.setHeader(headerKey, value)
             }
@@ -42,7 +42,7 @@ export abstract class Response extends ServerResponse {
             this.write(
                 body.toString instanceof Function
                     ? body.toString()
-                    : `${body}`
+                    : `${body}`,
             )
         }
 
@@ -77,7 +77,7 @@ export default function (response: ServerResponse): Response {
             send: Response.prototype.send.bind(response),
             json: Response.prototype.json.bind(response),
             setHeader: Response.prototype.setHeader.bind(response),
-            end: Response.prototype.end.bind(response)
-        }
+            end: Response.prototype.end.bind(response),
+        },
     )
 }

@@ -19,7 +19,7 @@ export default function (
     props: {
         params: requestParams,
         method: string
-    }
+    },
 ): Request {
     const matchedPathLength = parsePath(baseUrl).length
     const path = parsePath(url)
@@ -31,7 +31,7 @@ export default function (
         props,
         {
             baseUrl,
-            path
-        }
+            path,
+        },
     )
 }

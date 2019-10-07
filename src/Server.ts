@@ -5,7 +5,7 @@ import createRequest, { Request } from './Request'
 import {
     routing,
     routeRequest,
-    Router
+    Router,
 } from './Router'
 
 export class Server extends http.Server implements Router {
@@ -30,7 +30,7 @@ export class Server extends http.Server implements Router {
         }
 
         const res: Response = createResponse(
-            response
+            response,
         )
         const req: Request = createRequest(
             request,
@@ -38,8 +38,8 @@ export class Server extends http.Server implements Router {
             url,
             {
                 method,
-                params: {}
-            }
+                params: {},
+            },
         )
 
         const done = (error?: Error) => {

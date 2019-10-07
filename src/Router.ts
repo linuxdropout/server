@@ -42,17 +42,18 @@ export function setRouteHandler(
     pathIndex: number = 0,
 ) {
     if (pathIndex === pathParts.length) {
-        return routing.handlers.push({
+        routing.handlers.push({
             method,
             handler,
-            order
+            order,
         })
+        return
     }
 
     const nextPath = pathParts[pathIndex]
     const nextRouting = routing.routes.get(nextPath) || {
         handlers: [],
-        routes: new Map()
+        routes: new Map(),
     }
 
     setRouteHandler(nextRouting, method, pathParts, handler, order, pathIndex + 1)
@@ -65,14 +66,14 @@ export function getRouteHandlers(
     methods: Array<string> = ['all'],
     pathIndex: number = 0,
     handlers: Array<handler> = [],
-    params: requestParams = {}
+    params: requestParams = {},
 ) {
     for (const handler of routing.handlers) {
         if (methods.includes(handler.method)) {
             handlers.push({
                 ...handler,
                 path: pathParts.slice(0, pathIndex).join('/'),
-                params
+                params,
             })
         }
     }
@@ -89,8 +90,8 @@ export function getRouteHandlers(
                 handlers,
                 {
                     ...params,
-                    [routePath.slice(1)]: path
-                }
+                    [routePath.slice(1)]: path,
+                },
             )
             continue
         }
@@ -102,7 +103,7 @@ export function getRouteHandlers(
                 methods,
                 pathIndex + 1,
                 handlers,
-                params
+                params,
             )
             continue
         }
@@ -111,18 +112,18 @@ export function getRouteHandlers(
 
     return pathIndex === 0
         ? handlers.sort(
-            (handlerA, handlerB) => handlerA.order - handlerB.order
+            (handlerA, handlerB) => handlerA.order - handlerB.order,
         )
         : handlers
 }
 
 export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
-    const { method, path: url, params: requestParams, baseUrl } = req
+    const { method, path: url, params: reqParams } = req
 
     const handlers = getRouteHandlers(
         this.routing,
         parsePath(url),
-        ['all', method]
+        ['all', method],
     )
 
     let handlerIndex = 0
@@ -141,11 +142,11 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
             url,
             {
                 params: {
-                    ...requestParams,
-                    ...params
+                    ...reqParams,
+                    ...params,
                 },
-                method
-            }
+                method,
+            },
         )
 
         if (error) {
@@ -174,7 +175,7 @@ export abstract class Router {
             method,
             parsePath(path),
             handler,
-            this.routes++
+            this.routes++,
         )
         return this
     }
@@ -203,11 +204,11 @@ export default function (): reqHandler & Router {
         routing: { routes: new Map(), handlers: [] },
         routes: 0,
         route: Router.prototype.route,
-        use: Router.prototype.use
+        use: Router.prototype.use,
     }
 
     return Object.assign(
         routeRequest.bind(router),
-        router
+        router,
     )
 }
