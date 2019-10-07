@@ -23,7 +23,7 @@ tape('server :: e2e handlers including router', async t => {
                 if (req.method === 'OPTIONS') return res.status(200).end()
                 return next()
             },
-            bodyParser.urlencoded(),
+            bodyParser.urlencoded({ extended: true }),
             bodyParser.json(),
             session({
                 secret: 'test',
