@@ -180,6 +180,132 @@ export abstract class Router {
         return this
     }
 
+    get(handler: reqHandler | errHandler): Router
+    get(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    get(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'GET',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    head(handler: reqHandler | errHandler): Router
+    head(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    head(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'HEAD',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    patch(handler: reqHandler | errHandler): Router
+    patch(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    patch(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'PATCH',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    options(handler: reqHandler | errHandler): Router
+    options(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    options(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'OPTIONS',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    put(handler: reqHandler | errHandler): Router
+    put(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    put(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'PUT',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    delete(handler: reqHandler | errHandler): Router
+    delete(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    delete(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'DELETE',
+                handler,
+            )
+        }
+
+        return this
+    }
+
+    post(handler: reqHandler | errHandler): Router
+    post(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    post(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
+
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'POST',
+                handler,
+            )
+        }
+
+        return this
+    }
+
     use(handler: reqHandler | errHandler): Router
     use(path: string, ...handler: Array<reqHandler | errHandler>): Router
     use(...args: Array<string | reqHandler | errHandler>): Router {
@@ -205,6 +331,13 @@ export default function (): reqHandler & Router {
         routes: 0,
         route: Router.prototype.route,
         use: Router.prototype.use,
+        get: Router.prototype.get,
+        post: Router.prototype.post,
+        patch: Router.prototype.patch,
+        head: Router.prototype.head,
+        delete: Router.prototype.delete,
+        options: Router.prototype.options,
+        put: Router.prototype.put,
     }
 
     return Object.assign(

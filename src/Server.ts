@@ -19,6 +19,13 @@ export class Server extends http.Server implements Router {
 
     use = Router.prototype.use
     route = Router.prototype.route
+    get = Router.prototype.get
+    post = Router.prototype.post
+    patch = Router.prototype.patch
+    head = Router.prototype.head
+    delete = Router.prototype.delete
+    options = Router.prototype.options
+    put = Router.prototype.put
 
     handleRequest(request: http.IncomingMessage, response: http.ServerResponse): void {
         const { url, method } = request
