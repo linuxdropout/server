@@ -1,5 +1,6 @@
-git tag | xargs git tag -d && git fetch --tags
+git tag | xargs git tag -d
+git fetch --tags
+git reset --hard HEAD
 
 npm version prerelease --preid beta
-git diff
-# npm publish
+npm publish
