@@ -34,7 +34,9 @@ export abstract class Response extends ServerResponse {
 
         try {
             const json = JSON.stringify(body)
-            this.setHeader('Content-Type', 'application/json')
+            if (!this.headersSent) {
+                this.setHeader('Content-Type', 'application/json')
+            }
             this.write(json)
         } catch (err) {
             this.write(
@@ -48,7 +50,9 @@ export abstract class Response extends ServerResponse {
     }
 
     json(body: object) {
-        this.setHeader('Content-Type', 'application/json')
+        if (!this.headersSent) {
+            this.setHeader('Content-Type', 'application/json')
+        }
         this.write(JSON.stringify(body))
 
         return this

@@ -180,17 +180,21 @@ export abstract class Router {
     }
 
     use(handler: reqHandler | errHandler): Router
-    use(path: string, handler: reqHandler | errHandler): Router
-    use(arg0: string | reqHandler | errHandler, arg1?: reqHandler | errHandler): Router {
-        const [path, handler] = typeof arg0 === 'string'
-            ? [arg0, arg1 as reqHandler | errHandler]
-            : ['', arg0 as reqHandler | errHandler]
+    use(path: string, ...handler: Array<reqHandler | errHandler>): Router
+    use(...args: Array<string | reqHandler | errHandler>): Router {
+        const [path, handlers] = typeof args[0] === 'string'
+            ? [args[0] as string, args.slice(1) as Array<reqHandler | errHandler>]
+            : ['', args as Array<reqHandler | errHandler>]
 
-        return this.route(
-            path,
-            'all',
-            handler,
-        )
+        for (const handler of handlers) {
+            this.route(
+                path,
+                'all',
+                handler,
+            )
+        }
+
+        return this
     }
 }
 
