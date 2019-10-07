@@ -4,7 +4,7 @@ const { setRouteHandler, getRouteHandlers } = require('../dist/Router')
 tape('setRouteHandler :: sets single route', t => {
     const routing = {
         handlers: [],
-        routes: new Map()
+        routes: new Map(),
     }
 
     const testHandler = () => { }
@@ -12,7 +12,7 @@ tape('setRouteHandler :: sets single route', t => {
         routing,
         'GET',
         ['hello', 'world'],
-        testHandler
+        testHandler,
     )
 
     t.deepEqual(routing.handlers, [], 'correct handlers')
@@ -26,7 +26,7 @@ tape('setRouteHandler :: sets single route', t => {
     t.deepEqual(worldRoute.handlers, [{
         method: 'GET',
         handler: testHandler,
-        order: 0
+        order: 0,
     }], 'correct handlers')
     t.equal(worldRoute.routes.size, 0, 'correct routes')
 
@@ -36,7 +36,7 @@ tape('setRouteHandler :: sets single route', t => {
 tape('setRouteHandler :: sets multiple routes', t => {
     const routing = {
         handlers: [],
-        routes: new Map()
+        routes: new Map(),
     }
 
     const testHandler = () => { }
@@ -44,14 +44,14 @@ tape('setRouteHandler :: sets multiple routes', t => {
         routing,
         'GET',
         ['hello', 'world'],
-        testHandler
+        testHandler,
     )
     setRouteHandler(
         routing,
         'POST',
         ['hello', ':name'],
         testHandler,
-        1
+        1,
     )
 
     t.deepEqual(routing.handlers, [], 'correct handlers')
@@ -65,7 +65,7 @@ tape('setRouteHandler :: sets multiple routes', t => {
     t.deepEqual(worldRoute.handlers, [{
         method: 'GET',
         order: 0,
-        handler: testHandler
+        handler: testHandler,
     }], 'correct handlers')
     t.equal(worldRoute.routes.size, 0, 'correct routes')
 
@@ -73,7 +73,7 @@ tape('setRouteHandler :: sets multiple routes', t => {
     t.deepEqual(nameRoute.handlers, [{
         method: 'POST',
         order: 1,
-        handler: testHandler
+        handler: testHandler,
     }], 'correct handlers')
     t.equal(nameRoute.routes.size, 0, 'correct routes')
 
@@ -83,7 +83,7 @@ tape('setRouteHandler :: sets multiple routes', t => {
 tape('getRouteHandlers', t => {
     const routing = {
         handlers: [],
-        routes: new Map()
+        routes: new Map(),
     }
 
     const firstHandler = () => { }
@@ -93,33 +93,33 @@ tape('getRouteHandlers', t => {
         routing,
         'all',
         [],
-        firstHandler
+        firstHandler,
     )
     setRouteHandler(
         routing,
         'all',
         [],
         lastHandler,
-        2
+        2,
     )
     setRouteHandler(
         routing,
         'GET',
         ['john'],
-        () => { }
+        () => { },
     )
     setRouteHandler(
         routing,
         'GET',
         ['hello', ':name'],
         secondHandler,
-        1
+        1,
     )
 
     const handlers = getRouteHandlers(
         routing,
         ['hello', 'John Doe'],
-        ['all', 'GET']
+        ['all', 'GET'],
     )
 
     t.deepEqual(
@@ -128,7 +128,7 @@ tape('getRouteHandlers', t => {
             { method: 'all', path: '', order: 0, handler: firstHandler, params: {} },
             { method: 'GET', path: 'hello/John Doe', order: 1, handler: secondHandler, params: { name: 'John Doe' } },
             { method: 'all', path: '', order: 2, handler: lastHandler, params: {} },
-        ]
+        ],
     )
 
     t.end()

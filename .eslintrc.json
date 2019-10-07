@@ -1,0 +1,45 @@
+{
+    "extends": [
+        "airbnb"
+    ],
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "semi": [
+            "error",
+            "never"
+        ],
+        "indent": [
+            "error",
+            4
+        ],
+        "arrow-parens": [
+            "error",
+            "as-needed"
+        ],
+        "curly": [
+            "error",
+            "multi-line",
+            "consistent"
+        ],
+        "object-curly-newline": [
+            "error",
+            {
+                "consistent": true,
+                "multiline": true
+            }
+        ],
+        "max-statements-per-line": [
+            "error",
+            {
+                "max": 1
+            }
+        ],
+        "max-len": [
+            "error",
+            120
+        ]
+    },
+    "parser": "@typescript-eslint/parser"
+}

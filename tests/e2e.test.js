@@ -1,8 +1,8 @@
 const supertest = require('supertest')
-const { createServer, createRouter } = require('../dist')
 const tape = require('tape')
 const bodyParser = require('body-parser')
-const session = require('express-session')
+const sessionMiddleware = require('express-session')
+const { createServer, createRouter } = require('../dist')
 
 tape('server :: e2e handlers including router', async t => {
     t.plan(7)
@@ -25,12 +25,12 @@ tape('server :: e2e handlers including router', async t => {
             },
             bodyParser.urlencoded({ extended: true }),
             bodyParser.json(),
-            session({
+            sessionMiddleware({
                 secret: 'test',
                 cookie: { secure: false },
                 resave: false,
-                saveUninitialized: false
-            })
+                saveUninitialized: false,
+            }),
         )
 
     const router = createRouter()
@@ -42,17 +42,16 @@ tape('server :: e2e handlers including router', async t => {
         req.routerData.visited = '/test1'
         return next()
     })
-    router.route('/test1/:param', 'GET', (req, res, next) => {
+    router.route('/test1/:param', 'GET', (req, res) => {
         const { routerData, params } = req
         return res.json({ routerData, params }).end()
     })
-    router.route('/test2', 'POST', (req, res, next) => {
+    router.route('/test2', 'POST', (req, res) => {
         const { body, session } = req
         session.data = body
         return res.status(201).end()
     })
     router.route('/test3', 'PUT', (req, res, next) => {
-
         res.setHeader('Content-Type', 'application/json')
             .status(202, 'SESSION DATA')
             .send('[')
@@ -85,13 +84,13 @@ tape('server :: e2e handlers including router', async t => {
                 response.body,
                 {
                     params: {
-                        param: 'hello'
+                        param: 'hello',
                     },
                     routerData: {
-                        visited: '/test1'
-                    }
+                        visited: '/test1',
+                    },
                 },
-                '/router/test1/hello has expected response'
+                '/router/test1/hello has expected response',
             )
         })
 
@@ -104,7 +103,7 @@ tape('server :: e2e handlers including router', async t => {
             .end((error, response) => {
                 t.error(error, 'no error /router/test2')
                 return resolve(
-                    response.header['set-cookie'].shift()
+                    response.header['set-cookie'].shift(),
                 )
             })
     })
@@ -126,13 +125,13 @@ tape('server :: e2e handlers including router', async t => {
                             expires: null,
                             secure: false,
                             httpOnly: true,
-                            path: '/'
+                            path: '/',
                         },
-                        data: { foo: 'bar' }
+                        data: { foo: 'bar' },
                     },
-                    { param: 'hello' }
+                    { param: 'hello' },
                 ],
-                '/router/test3/hello has expected response'
+                '/router/test3/hello has expected response',
             )
         })
 })
