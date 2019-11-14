@@ -5,7 +5,7 @@ const sessionMiddleware = require('express-session')
 const { createServer, createRouter } = require('../dist')
 
 tape('server :: e2e handlers including router', async t => {
-    t.plan(7)
+    t.plan(9)
 
     const server = createServer()
     tape.onFinish(() => {
@@ -40,6 +40,10 @@ tape('server :: e2e handlers including router', async t => {
     router.route('/test1', 'GET', (req, res, next) => {
         req.routerData.visited = '/test1'
         return next()
+    })
+    router.get('/test12', (req, res) => {
+        const { routerData, params } = req
+        return res.json({ routerData, params }).end()
     })
     router.route('/test1/:param', 'GET', (req, res) => {
         const { routerData, params } = req
@@ -131,6 +135,20 @@ tape('server :: e2e handlers including router', async t => {
                     { param: 'hello' },
                 ],
                 '/router/test3/hello has expected response',
+            )
+        })
+
+    supertest(server)
+        .get('/router/test12?abc=123')
+        .set('Cookie', Cookie)
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end((error, response) => {
+            t.error(error, 'no error /router/test3/hello')
+            t.deepEqual(
+                response.body,
+                { routerData: {}, params: {} },
+                'has expected response',
             )
         })
 })
