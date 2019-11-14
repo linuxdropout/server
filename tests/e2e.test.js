@@ -8,7 +8,6 @@ tape('server :: e2e handlers including router', async t => {
     t.plan(7)
 
     const server = createServer()
-    server.listen(8080)
     tape.onFinish(() => {
         server.close()
     })
