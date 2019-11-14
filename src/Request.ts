@@ -10,19 +10,21 @@ export abstract class Request extends IncomingMessage {
     path: string = '/'
     baseUrl: string = '/'
     method: string = 'all'
+    queryString: string = ''
 }
 
 export default function (
     request: IncomingMessage,
     baseUrl: string,
-    url: string,
+    pathname: string,
     props: {
         params: requestParams,
-        method: string
+        method: string,
+        queryString: string
     },
 ): Request {
     const matchedPathLength = parsePath(baseUrl).length
-    const path = parsePath(url)
+    const path = parsePath(pathname)
         .slice(matchedPathLength)
         .join('/')
 

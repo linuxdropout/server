@@ -35,6 +35,7 @@ export class Server extends http.Server implements Router {
             response.statusMessage = statusMessage[400]
             return response.end()
         }
+        const [pathname, queryString] = url.split('?')
 
         const res: Response = createResponse(
             response,
@@ -42,10 +43,11 @@ export class Server extends http.Server implements Router {
         const req: Request = createRequest(
             request,
             '',
-            url,
+            pathname,
             {
                 method,
                 params: {},
+                queryString
             },
         )
 

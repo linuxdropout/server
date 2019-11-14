@@ -62,7 +62,7 @@ tape('server :: e2e handlers including router', async t => {
 
         return next()
     })
-    router.route('/test3/:param?a=b', 'PUT', (req, res, next) => {
+    router.route('/test3/:param', 'PUT', (req, res, next) => {
         res.send(',')
             .send(req.params)
             .send(']')
@@ -78,7 +78,7 @@ tape('server :: e2e handlers including router', async t => {
 
     server.use('/router', router)
     supertest(server)
-        .get('/router/test1/hello')
+        .get('/router/test1/hello?a=b')
         .expect(200)
         .expect('Content-Type', /json/)
         .end((error, response) => {

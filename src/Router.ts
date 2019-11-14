@@ -90,13 +90,13 @@ export function getRouteHandlers(
                 handlers,
                 {
                     ...params,
-                    [(routePath.split('?').shift() as string).slice(1)]: path,
+                    [routePath.slice(1)]: path,
                 },
             )
             continue
         }
 
-        if (routePath === path.split('?').shift()) {
+        if (routePath === path) {
             getRouteHandlers(
                 route,
                 pathParts,
@@ -118,7 +118,7 @@ export function getRouteHandlers(
 }
 
 export function routeRequest(this: Router, req: Request, res: Response, done: (error?: Error) => void) {
-    const { method, path: url, params: reqParams } = req
+    const { method, path: url, params: reqParams, queryString } = req
 
     const handlers = getRouteHandlers(
         this.routing,
@@ -146,6 +146,7 @@ export function routeRequest(this: Router, req: Request, res: Response, done: (e
                     ...params,
                 },
                 method,
+                queryString,
             },
         )
 
