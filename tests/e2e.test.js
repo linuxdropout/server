@@ -62,7 +62,7 @@ tape('server :: e2e handlers including router', async t => {
 
         return next()
     })
-    router.route('/test3/:param', 'PUT', (req, res, next) => {
+    router.route('/test3/:param?a=b', 'PUT', (req, res, next) => {
         res.send(',')
             .send(req.params)
             .send(']')
@@ -144,7 +144,7 @@ tape('server :: e2e handlers including router', async t => {
         .expect(200)
         .expect('Content-Type', /json/)
         .end((error, response) => {
-            t.error(error, 'no error /router/test3/hello')
+            t.error(error, 'get /router/test12?abc=123')
             t.deepEqual(
                 response.body,
                 { routerData: {}, params: {} },

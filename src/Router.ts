@@ -90,7 +90,7 @@ export function getRouteHandlers(
                 handlers,
                 {
                     ...params,
-                    [routePath.slice(1)]: path,
+                    [(routePath.split('?').shift() as string).slice(1)]: path,
                 },
             )
             continue
