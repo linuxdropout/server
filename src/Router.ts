@@ -96,7 +96,7 @@ export function getRouteHandlers(
             continue
         }
 
-        if (routePath === path) {
+        if (routePath === path.split('?').shift()) {
             getRouteHandlers(
                 route,
                 pathParts,
