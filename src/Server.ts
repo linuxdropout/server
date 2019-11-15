@@ -47,7 +47,7 @@ export class Server extends http.Server implements Router {
             {
                 method,
                 params: {},
-                queryString
+                queryString,
             },
         )
 
